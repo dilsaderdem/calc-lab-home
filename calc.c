@@ -16,6 +16,7 @@ typedef struct {
     double d;
 } Value;
 
+// Keeps track of the current position so errors can be reported correctly.
 typedef struct {
     const char *text;
     size_t length;
@@ -56,6 +57,7 @@ static void skip_spaces(Parser *p) {
     }
 }
 
+// Store only the first error position found.
 static void set_error(Parser *p, size_t pos) {
     if (!p->has_error) {
         p->has_error = 1;
@@ -123,6 +125,7 @@ static Value parse_primary(Parser *p) {
     long long x = strtoll(p->text + start, NULL, 10);
     return make_int(x);
 }
+// Power is parsed recursively so ** works right-to-left.
 static Value parse_power(Parser *p) {
     Value left = parse_primary(p);
 
@@ -177,6 +180,7 @@ static Value parse_power(Parser *p) {
 
     return left;
 }
+// This level handles * and / before + and -.
 static Value parse_term(Parser *p) {
     Value left = parse_power(p);
 
@@ -316,6 +320,7 @@ static void print_value(FILE *fp, Value v) {
     }
 }
 
+// The buffer grows when needed so long input lines can be read safely.
 static char *read_line(FILE *fp, size_t *len) {
     size_t capacity = 128;
     size_t n = 0;
